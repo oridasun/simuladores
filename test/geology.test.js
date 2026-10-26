@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {transform,missions} from '../geology.js';
+test('Las cinco misiones forman una ruta válida y conectada',()=>{for(let i=0;i<missions.length;i++){const m=missions[i];assert.equal(transform(m.source,m.process),m.target);assert.ok(m.choices.includes(m.process));if(i)assert.equal(missions[i-1].target,m.source);}});
+test('Cualquier familia sólida puede erosionarse o fundirse',()=>{for(const r of ['igneous','sedimentary','metamorphic']){assert.equal(transform(r,'erode'),'sediment');assert.equal(transform(r,'melt'),'magma');}});
+test('Metamorfismo y fusión son procesos diferentes',()=>{assert.equal(transform('sedimentary','heat'),'metamorphic');assert.equal(transform('sedimentary','melt'),'magma');assert.equal(transform('magma','heat'),null);assert.equal(transform('sediment','heat'),null);assert.equal(transform('sediment','cool'),null);});

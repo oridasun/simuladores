@@ -1,0 +1,15 @@
+import {readFile, mkdir, writeFile} from 'node:fs/promises';
+const root=new URL('../',import.meta.url);
+const read=path=>readFile(new URL(path,root),'utf8');
+let html=await read('index.html');
+let css=(await read('style.css')).replace(/@import url\([^;]+;\s*/g,'');
+const specimens=await readFile(new URL('assets/rock-specimens.png',root));
+css=css.replace("assets/rock-specimens.png",`data:image/png;base64,${specimens.toString('base64')}`);
+const geology=(await read('geology.js')).replace(/^export /gm,'');
+let app=(await read('app.js')).replace(/^import .*?;\s*/,'');
+const photo=await readFile(new URL('assets/rock-world.png',root));
+app=app.replace("image.src='assets/rock-world.png'",`image.src='data:image/png;base64,${photo.toString('base64')}'`);
+html=html.replace('<link rel="stylesheet" href="style.css">',()=>`<style>${css}</style>`).replace('<script type="module" src="app.js"></script>',()=>`<script type="module">${geology}\n${app}</script>`);
+await mkdir(new URL('dist/',root),{recursive:true});
+await writeFile(new URL('dist/index.html',root),html);
+console.log('Web autónoma generada en dist/index.html');
